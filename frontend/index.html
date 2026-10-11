@@ -1,0 +1,1045 @@
+<!DOCTYPE html>
+<html lang="fa" dir="rtl">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<title>آپشن آنالایزر</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Vazirmatn:wght@400;500;600;700&display=swap" rel="stylesheet">
+<style>
+  :root {
+    --bg: #FAFAFB;
+    --surface: #FFFFFF;
+    --border: #E5E7EB;
+    --text: #111827;
+    --text-muted: #6B7280;
+    --text-faint: #9CA3AF;
+    --accent: #1A73E8;
+    --accent-soft: #EAF1FE;
+    --good: #16813D;
+    --good-bg: #E7F6EC;
+    --bad: #C0362C;
+    --bad-bg: #FCECEB;
+    --neutral-bg: #F3F4F6;
+    --sidebar-w: 220px;
+    --radius: 10px;
+  }
+
+  * { box-sizing: border-box; }
+
+  html, body {
+    margin: 0;
+    padding: 0;
+    background: var(--bg);
+    color: var(--text);
+    font-family: "Vazirmatn", Tahoma, sans-serif;
+    font-size: 14px;
+    line-height: 1.6;
+  }
+
+  body {
+    padding-top: env(safe-area-inset-top, 0px);
+    padding-bottom: env(safe-area-inset-bottom, 0px);
+  }
+
+  .app {
+    display: flex;
+    min-height: 100vh;
+  }
+
+  /* ===================== سایدبار ===================== */
+  .sidebar {
+    width: var(--sidebar-w);
+    flex-shrink: 0;
+    background: var(--surface);
+    border-left: 1px solid var(--border);
+    display: flex;
+    flex-direction: column;
+    padding: 18px 14px;
+  }
+
+  .brand {
+    display: flex;
+    align-items: center;
+    gap: 10px;
+    padding: 0 6px 18px;
+    margin-bottom: 14px;
+    border-bottom: 1px solid var(--border);
+  }
+
+  .brand-mark {
+    width: 30px; height: 30px;
+    border-radius: 8px;
+    background: var(--accent);
+    display: flex; align-items: center; justify-content: center;
+    color: white; font-weight: 700; font-size: 14px;
+  }
+
+  .brand-text b { display: block; font-size: 14.5px; }
+  .brand-text span { display: block; font-size: 11.5px; color: var(--text-faint); }
+
+  .nav-group-label {
+    font-size: 11px;
+    font-weight: 700;
+    color: var(--text-faint);
+    letter-spacing: .03em;
+    padding: 10px 8px 6px;
+  }
+
+  .tab-list {
+    display: flex;
+    flex-direction: column;
+    gap: 2px;
+    overflow-y: auto;
+  }
+
+  .tab-item {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    gap: 8px;
+    padding: 9px 10px;
+    border-radius: 8px;
+    cursor: pointer;
+    color: var(--text-muted);
+    font-size: 13.5px;
+  }
+
+  .tab-item:hover { background: var(--neutral-bg); }
+
+  .tab-item.active {
+    background: var(--accent-soft);
+    color: var(--accent);
+    font-weight: 600;
+  }
+
+  .tab-item .tab-item-label {
+    display: flex; align-items: center; gap: 8px;
+    overflow: hidden; white-space: nowrap; text-overflow: ellipsis;
+  }
+
+  .tab-close {
+    opacity: 0;
+    background: none; border: none; cursor: pointer;
+    color: inherit; padding: 2px; border-radius: 4px;
+    display: flex; width: auto; margin: 0;
+  }
+  .tab-item:hover .tab-close { opacity: .6; }
+  .tab-close:hover { opacity: 1 !important; background: rgba(0,0,0,.06); }
+
+  .new-tab-btn {
+    display: flex; align-items: center; gap: 8px;
+    margin-top: 8px;
+    padding: 9px 10px;
+    border-radius: 8px;
+    border: 1px dashed var(--border);
+    background: none;
+    color: var(--text-muted);
+    font-family: inherit;
+    font-size: 13.5px;
+    cursor: pointer;
+    width: 100%;
+  }
+  .new-tab-btn:hover { border-color: var(--accent); color: var(--accent); }
+
+  .sidebar-footer {
+    margin-top: auto;
+    padding-top: 14px;
+    border-top: 1px solid var(--border);
+    font-size: 11.5px;
+    color: var(--text-faint);
+  }
+
+  /* ===================== محتوای اصلی ===================== */
+  .main {
+    flex: 1;
+    min-width: 0;
+    padding: 22px 28px;
+  }
+
+  .topbar {
+    display: flex;
+    align-items: flex-start;
+    justify-content: space-between;
+    margin-bottom: 18px;
+    gap: 16px;
+    flex-wrap: wrap;
+  }
+
+  .topbar h1 { margin: 0; font-size: 19px; font-weight: 700; }
+  .topbar p { margin: 3px 0 0; color: var(--text-muted); font-size: 12.5px; }
+
+  .toolbar {
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    flex-wrap: wrap;
+  }
+
+  select, input[type="number"] {
+    padding: 8px 10px;
+    border: 1px solid var(--border);
+    border-radius: 8px;
+    font-family: inherit;
+    font-size: 13px;
+    background: var(--surface);
+    color: var(--text);
+  }
+  select:focus, input[type="number"]:focus { outline: none; border-color: var(--accent); }
+
+  input[type="number"] { width: 130px; }
+
+  button {
+    display: inline-flex;
+    align-items: center;
+    gap: 6px;
+    padding: 8px 14px;
+    border-radius: 8px;
+    border: 1px solid var(--border);
+    background: var(--surface);
+    color: var(--text);
+    font-family: inherit;
+    font-size: 13px;
+    font-weight: 600;
+    cursor: pointer;
+    white-space: nowrap;
+  }
+  button:hover { background: var(--neutral-bg); }
+  button:disabled { opacity: .5; cursor: not-allowed; }
+
+  .btn-primary { background: var(--accent); border-color: var(--accent); color: white; }
+  .btn-primary:hover { background: #1765CC; }
+
+  .btn-icon-only { padding: 8px; }
+
+  .status-line {
+    font-size: 12px;
+    color: var(--text-faint);
+    margin-bottom: 14px;
+    min-height: 1.3em;
+  }
+  .status-line.error { color: var(--bad); }
+  .status-line.success { color: var(--good); }
+
+  .status-row {
+    display: flex;
+    justify-content: space-between;
+    align-items: baseline;
+    gap: 16px;
+    flex-wrap: wrap;
+    margin-bottom: 14px;
+  }
+  .status-row .status-line { margin-bottom: 0; }
+
+  .refresh-info {
+    font-size: 12px;
+    color: var(--text-faint);
+    min-height: 1.3em;
+  }
+  .refresh-info.failed { color: var(--bad); }
+
+  .price-delta { font-size: 12px; font-weight: 600; margin-right: 8px; }
+  .price-delta.up { color: var(--good); }
+  .price-delta.down { color: var(--bad); }
+
+  /* ===================== کارت‌های آماری ===================== */
+  .stat-row {
+    display: grid;
+    grid-template-columns: repeat(4, 1fr);
+    gap: 12px;
+    margin-bottom: 16px;
+  }
+
+  .stat-card {
+    background: var(--surface);
+    border: 1px solid var(--border);
+    border-radius: var(--radius);
+    padding: 14px 16px;
+  }
+  .stat-card .stat-label { font-size: 11.5px; color: var(--text-faint); margin-bottom: 6px; }
+  .stat-card .stat-value { font-size: 19px; font-weight: 700; }
+
+  /* ===================== جدول ===================== */
+  .card {
+    background: var(--surface);
+    border: 1px solid var(--border);
+    border-radius: var(--radius);
+    overflow: hidden;
+  }
+
+  .card-head {
+    padding: 14px 18px;
+    border-bottom: 1px solid var(--border);
+    font-weight: 700;
+    font-size: 14px;
+  }
+
+  .empty-state {
+    padding: 56px 20px;
+    text-align: center;
+    color: var(--text-muted);
+    font-size: 13.5px;
+  }
+
+  .table-scroll { overflow-x: auto; }
+
+  table { width: 100%; border-collapse: collapse; }
+
+  thead th {
+    background: var(--neutral-bg);
+    text-align: right;
+    padding: 9px 14px;
+    font-size: 11.5px;
+    font-weight: 700;
+    color: var(--text-muted);
+    border-bottom: 1px solid var(--border);
+    white-space: nowrap;
+  }
+
+  tbody td {
+    padding: 10px 14px;
+    border-bottom: 1px solid #F0F1F3;
+    font-size: 13px;
+    white-space: nowrap;
+  }
+  tbody tr:last-child td { border-bottom: none; }
+
+  .dot { width: 7px; height: 7px; border-radius: 50%; display: inline-block; margin-left: 6px; }
+  .dot-good { background: var(--good); }
+  .dot-bad { background: var(--bad); }
+  .dot-neutral { background: var(--text-faint); }
+
+  .badge {
+    display: inline-flex;
+    align-items: center;
+    padding: 3px 10px;
+    border-radius: 999px;
+    font-size: 11.5px;
+    font-weight: 600;
+  }
+  .badge-good { background: var(--good-bg); color: var(--good); }
+  .badge-bad { background: var(--bad-bg); color: var(--bad); }
+  .badge-neutral { background: var(--neutral-bg); color: var(--text-muted); }
+
+  .type-tag { font-size: 11.5px; font-weight: 600; padding: 2px 8px; border-radius: 6px; }
+  .type-call { color: var(--good); background: var(--good-bg); }
+  .type-put { color: var(--bad); background: var(--bad-bg); }
+
+  .profit-good { color: var(--good); font-weight: 700; }
+  .profit-bad { color: var(--bad); font-weight: 700; }
+
+  /* ===================== پاپ‌آپ فیلتر ===================== */
+  .filter-wrap { position: relative; }
+
+  .filter-popup {
+    position: absolute;
+    top: calc(100% + 6px);
+    left: 0;
+    width: 230px;
+    background: var(--surface);
+    border: 1px solid var(--border);
+    border-radius: var(--radius);
+    box-shadow: 0 8px 24px rgba(0,0,0,.08);
+    padding: 14px;
+    z-index: 20;
+    display: none;
+  }
+  .filter-popup.open { display: block; }
+
+  .filter-section-label {
+    font-size: 11px;
+    font-weight: 700;
+    color: var(--text-faint);
+    margin: 10px 0 6px;
+  }
+  .filter-section-label:first-child { margin-top: 0; }
+
+  .filter-check {
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    font-size: 13px;
+    padding: 3px 0;
+    cursor: pointer;
+  }
+
+  /* ===================== آیکون‌ها ===================== */
+  svg.icon { width: 16px; height: 16px; stroke: currentColor; fill: none; stroke-width: 1.8; stroke-linecap: round; stroke-linejoin: round; flex-shrink: 0; }
+
+  /* ===================== واکنش‌گرایی موبایل ===================== */
+  @media (max-width: 820px) {
+    .app { flex-direction: column; }
+
+    .sidebar {
+      width: 100%;
+      border-left: none;
+      border-bottom: 1px solid var(--border);
+      padding: 12px;
+    }
+
+    .brand { margin-bottom: 8px; padding-bottom: 10px; }
+
+    .tab-list {
+      flex-direction: row;
+      overflow-x: auto;
+      gap: 6px;
+    }
+
+    .tab-item { flex-shrink: 0; }
+
+    .new-tab-btn { width: auto; flex-shrink: 0; margin-top: 0; }
+
+    .sidebar-footer { display: none; }
+
+    .main { padding: 14px; }
+
+    .stat-row { grid-template-columns: repeat(2, 1fr); }
+
+    table, thead, tbody, th, td, tr { display: block; width: 100%; }
+    thead { display: none; }
+
+    tbody tr {
+      border: 1px solid var(--border);
+      border-radius: var(--radius);
+      margin-bottom: 10px;
+      padding: 8px 4px;
+    }
+
+    tbody td {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      border-bottom: none;
+      padding: 6px 12px;
+      white-space: normal;
+    }
+
+    tbody td::before {
+      content: attr(data-label);
+      font-size: 11.5px;
+      color: var(--text-faint);
+      font-weight: 600;
+      margin-left: 12px;
+    }
+  }
+</style>
+</head>
+<body>
+
+<div class="app">
+
+  <!-- ===================== سایدبار: لیست تب‌ها ===================== -->
+  <aside class="sidebar">
+    <div class="brand">
+      <div class="brand-mark">آ</div>
+      <div class="brand-text">
+        <b>آپشن آنالایزر</b>
+        <span>تحلیل اختیار معامله</span>
+      </div>
+    </div>
+
+    <div class="nav-group-label">تب‌های باز</div>
+    <div class="tab-list" id="tabList"></div>
+
+    <button class="new-tab-btn" id="newTabBtn">
+      <svg class="icon" viewBox="0 0 24 24"><path d="M12 5v14M5 12h14"/></svg>
+      تب جدید
+    </button>
+
+    <div class="nav-group-label">گزارش‌های ذخیره‌شده</div>
+    <div class="tab-list" id="savedTabsList" style="color:var(--text-faint); font-size:12.5px; padding:4px 8px;">
+      در حال بارگذاری...
+    </div>
+
+    <div class="sidebar-footer">نسخه‌ی وب — داده‌ی زنده از بورس</div>
+  </aside>
+
+  <!-- ===================== محتوای اصلی ===================== -->
+  <main class="main">
+
+    <div class="topbar">
+      <div>
+        <h1 id="pageTitle">تب جدید</h1>
+        <p>انتخاب نماد، دریافت اطلاعات زنده و تحلیل قراردادها</p>
+      </div>
+
+      <div class="toolbar">
+        <select id="underlyingSelect"><option value="">در حال بارگذاری...</option></select>
+
+        <input type="number" id="capitalInput" placeholder="آورده" value="200000">
+
+        <div class="filter-wrap">
+          <button id="filterBtn" type="button">
+            <svg class="icon" viewBox="0 0 24 24"><path d="M4 5h16M7 12h10M10 19h4"/></svg>
+            فیلتر
+          </button>
+          <div class="filter-popup" id="filterPopup">
+            <div class="filter-section-label">سررسید</div>
+            <div id="expiryCheckboxes" style="color:var(--text-faint); font-size:12.5px;">
+              بعد از دریافت اطلاعات نمایش داده می‌شود.
+            </div>
+
+            <div class="filter-section-label">محدوده سود</div>
+            <label class="filter-check"><input type="checkbox" id="profitAbove20"> سود بالای ۲۰٪</label>
+            <label class="filter-check"><input type="checkbox" id="profitBelow20"> سود زیر ۲۰٪</label>
+            <label class="filter-check"><input type="checkbox" id="profitBelow10"> سود زیر ۱۰٪</label>
+          </div>
+        </div>
+
+        <button class="btn-primary" id="fetchBtn">
+          <svg class="icon" viewBox="0 0 24 24" stroke="white"><path d="M12 4v12m0 0l-4-4m4 4l4-4M4 20h16"/></svg>
+          دریافت اطلاعات
+        </button>
+      </div>
+    </div>
+
+    <div class="status-row">
+      <div class="status-line" id="statusText"></div>
+      <div class="refresh-info" id="refreshInfo"></div>
+    </div>
+
+    <div class="stat-row" id="statRow" style="display:none;"></div>
+
+    <div class="card">
+      <div class="card-head" id="tableTitle">قراردادها</div>
+      <div id="resultArea">
+        <div class="empty-state">یک نماد را انتخاب کن و «دریافت اطلاعات» را بزن.</div>
+      </div>
+    </div>
+
+  </main>
+</div>
+
+<script>
+  // وقتی بک‌اند روی سرور واقعی دیپلوی شد، فقط همین خط را عوض کن:
+  const API_BASE_URL = "";
+
+
+  // فاصله‌ی بروزرسانی خودکار قراردادها (برای تست: ۲ دقیقه).
+  // بعداً که خواستی طولانی‌تر بشه، فقط همین عدد را عوض کن؛ مثلاً ۱۰ دقیقه: 10 * 60 * 1000
+  const AUTO_REFRESH_INTERVAL_MS = 2 * 60 * 1000;
+
+  // لیست نمادها خودش هر چند وقت یک‌بار بی‌صدا بروز می‌شود (دکمه‌ی دستی حذف شد)
+  const UNDERLYINGS_REFRESH_MS = 30 * 60 * 1000;
+
+  let allUnderlyings = [];
+  let tabs = [];
+  let activeTabId = null;
+  let tabCounter = 0;
+
+  const tabListEl = document.getElementById("tabList");
+  const pageTitleEl = document.getElementById("pageTitle");
+  const underlyingSelect = document.getElementById("underlyingSelect");
+  const capitalInput = document.getElementById("capitalInput");
+  const fetchBtn = document.getElementById("fetchBtn");
+  const filterBtn = document.getElementById("filterBtn");
+  const filterPopup = document.getElementById("filterPopup");
+  const expiryCheckboxesEl = document.getElementById("expiryCheckboxes");
+  const statusText = document.getElementById("statusText");
+  const refreshInfo = document.getElementById("refreshInfo");
+  const statRow = document.getElementById("statRow");
+  const resultArea = document.getElementById("resultArea");
+  const tableTitle = document.getElementById("tableTitle");
+  const savedTabsListEl = document.getElementById("savedTabsList");
+
+  function createTab() {
+    tabCounter += 1;
+    const tab = {
+      id: "tab-" + tabCounter,
+      title: "تب جدید",
+      underlying: "",
+      capital: 200000,
+      data: null,          // آخرین پاسخ API
+      live: false,         // آیا بروزرسانی خودکار برای این تب فعاله؟ (فقط بعد از «دریافت اطلاعات»)
+      refreshing: false,
+      lastUpdated: null,
+      lastRefreshFailed: false,
+      priceDelta: 0,       // تغییر قیمت سهم نسبت به بروزرسانی قبلی
+      filters: { dates: new Set(), above20: false, below20: false, below10: false },
+    };
+    tabs.push(tab);
+    return tab;
+  }
+
+  function getActiveTab() {
+    return tabs.find((t) => t.id === activeTabId);
+  }
+
+  function switchTab(id) {
+    activeTabId = id;
+    renderSidebar();
+    renderMain();
+  }
+
+  function closeTab(id, event) {
+    event.stopPropagation();
+    if (tabs.length === 1) return; // همیشه حداقل یک تب باز بماند
+    tabs = tabs.filter((t) => t.id !== id);
+    if (activeTabId === id) {
+      activeTabId = tabs[0].id;
+    }
+    renderSidebar();
+    renderMain();
+  }
+
+  function renderSidebar() {
+    tabListEl.innerHTML = tabs.map((t) => `
+      <div class="tab-item ${t.id === activeTabId ? "active" : ""}" data-id="${t.id}">
+        <span class="tab-item-label">
+          <svg class="icon" viewBox="0 0 24 24"><rect x="3" y="4" width="18" height="16" rx="2"/><path d="M3 9h18"/></svg>
+          ${t.title}
+        </span>
+        <button class="tab-close" data-close="${t.id}" title="بستن تب">
+          <svg class="icon" viewBox="0 0 24 24" style="width:13px;height:13px;"><path d="M6 6l12 12M18 6L6 18"/></svg>
+        </button>
+      </div>
+    `).join("");
+
+    tabListEl.querySelectorAll(".tab-item").forEach((el) => {
+      el.addEventListener("click", () => switchTab(el.dataset.id));
+    });
+    tabListEl.querySelectorAll("[data-close]").forEach((el) => {
+      el.addEventListener("click", (e) => closeTab(el.dataset.close, e));
+    });
+  }
+
+  function populateUnderlyingSelect(preserveCurrent = false) {
+    const previous = preserveCurrent ? underlyingSelect.value : "";
+    underlyingSelect.innerHTML = '<option value="">انتخاب نماد...</option>' +
+      allUnderlyings.map((name) => `<option value="${name}">${name}</option>`).join("");
+    const tab = getActiveTab();
+    const target = previous || (tab && tab.underlying);
+    if (target) underlyingSelect.value = target;
+  }
+
+  function renderMain() {
+    const tab = getActiveTab();
+    if (!tab) return;
+
+    pageTitleEl.textContent = tab.title;
+    capitalInput.value = tab.capital;
+    populateUnderlyingSelect();
+    setStatus("");
+
+    // وضعیت چک‌باکس‌های سود باید با فیلترِ خودِ این تب هماهنگ باشد
+    document.getElementById("profitAbove20").checked = tab.filters.above20;
+    document.getElementById("profitBelow20").checked = tab.filters.below20;
+    document.getElementById("profitBelow10").checked = tab.filters.below10;
+
+    renderRefreshInfo();
+
+    if (!tab.data) {
+      statRow.style.display = "none";
+      resultArea.innerHTML = `<div class="empty-state">یک نماد را انتخاب کن و «دریافت اطلاعات» را بزن.</div>`;
+      expiryCheckboxesEl.innerHTML = "بعد از دریافت اطلاعات نمایش داده می‌شود.";
+      renderedExpiryKey = "";
+      return;
+    }
+
+    renderExpiryCheckboxes(tab);
+    renderResults(tab);
+  }
+
+  // متن کنار وضعیت: نشان می‌دهد بروزرسانی خودکار فعال است و آخرین بار کِی بوده
+  function renderRefreshInfo() {
+    const tab = getActiveTab();
+    refreshInfo.className = "refresh-info";
+
+    if (!tab || !tab.data) { refreshInfo.textContent = ""; return; }
+
+    if (!tab.live) {
+      refreshInfo.textContent = "گزارش ذخیره‌شده — برای بروزرسانی خودکار «دریافت اطلاعات» را بزن";
+      return;
+    }
+
+    const minutes = AUTO_REFRESH_INTERVAL_MS / 60000;
+    const every = Number.isInteger(minutes) ? minutes : minutes.toFixed(1);
+    const last = tab.lastUpdated ? tab.lastUpdated.toLocaleTimeString("en-GB") : "-";
+
+    if (tab.refreshing) {
+      refreshInfo.textContent = "در حال بروزرسانی...";
+    } else if (tab.lastRefreshFailed) {
+      refreshInfo.className = "refresh-info failed";
+      refreshInfo.textContent = `بروزرسانی اخیر ناموفق بود؛ داده‌ی ${last} نمایش داده می‌شود (تلاش بعدی خودکار)`;
+    } else {
+      refreshInfo.textContent = `بروزرسانی خودکار هر ${every} دقیقه · آخرین بروزرسانی: ${last}`;
+    }
+  }
+
+  let renderedExpiryKey = "";   // برای اینکه پاپ‌آپ فیلتر بی‌دلیل وسط کار کاربر بازسازی نشود
+
+  function setStatus(text, kind) {
+    statusText.textContent = text || "";
+    statusText.className = "status-line" + (kind ? " " + kind : "");
+  }
+
+  function formatNumber(value) {
+    if (value === null || value === undefined) return "-";
+    return Number(value).toLocaleString("en-US", { maximumFractionDigits: 2 });
+  }
+
+  let underlyingsLoading = false;
+
+  async function loadUnderlyings({ silent = false } = {}) {
+    if (underlyingsLoading) return;
+    underlyingsLoading = true;
+
+    if (!silent) setStatus("در حال دریافت لیست نمادها...");
+
+    try {
+      const res = await fetch(`${API_BASE_URL}/api/underlyings`);
+      if (!res.ok) throw new Error();
+      const data = await res.json();
+      allUnderlyings = data.underlyings;
+      populateUnderlyingSelect(true);
+      if (!silent) setStatus(`${allUnderlyings.length} نماد دریافت شد.`, "success");
+    } catch (err) {
+      // تا وقتی هیچ لیستی نداریم، خودش هر ۱۵ ثانیه دوباره تلاش می‌کند
+      if (!allUnderlyings.length) {
+        setStatus("لیست نمادها دریافت نشد؛ تلاش مجدد خودکار... (آیا بک‌اند روشن است؟)", "error");
+        setTimeout(() => loadUnderlyings(), 15000);
+      }
+    } finally {
+      underlyingsLoading = false;
+    }
+  }
+
+  // درخواست مشترک برای دریافت دستی و بروزرسانی خودکار
+  async function requestContracts(underlying, capital) {
+    const url = `${API_BASE_URL}/api/contracts?underlying=${encodeURIComponent(underlying)}&capital=${capital}`;
+    const res = await fetch(url);
+    if (!res.ok) {
+      const errBody = await res.json().catch(() => ({}));
+      throw new Error(errBody.detail || "خطا در دریافت اطلاعات");
+    }
+    return res.json();
+  }
+
+  async function fetchContracts() {
+    const tab = getActiveTab();
+    const underlying = underlyingSelect.value;
+    const capital = parseFloat(capitalInput.value);
+
+    if (!underlying) { setStatus("ابتدا یک نماد پایه را انتخاب کنید.", "error"); return; }
+    if (!capital || capital <= 0) { setStatus("آورده باید یک عدد معتبر باشد.", "error"); return; }
+
+    const sameSymbol = tab.underlying === underlying;
+
+    fetchBtn.disabled = true;
+    tab.refreshing = true;
+    renderRefreshInfo();
+    setStatus("در حال دریافت اطلاعات از بازار...");
+
+    try {
+      const data = await requestContracts(underlying, capital);
+
+      tab.underlying = underlying;
+      tab.capital = capital;
+      tab.data = data;
+      tab.live = true;                 // از این لحظه بروزرسانی خودکار برای این تب فعاله
+      tab.lastUpdated = new Date();
+      tab.lastRefreshFailed = false;
+      tab.priceDelta = 0;
+
+      // اگر همان نماد را دوباره گرفته‌ای، فیلترهایت حفظ شود؛ نماد جدید = فیلتر تازه
+      if (!sameSymbol) {
+        tab.filters = { dates: new Set(), above20: false, below20: false, below10: false };
+      }
+
+      // رفتار آشنا از نسخه‌ی دسکتاپ: تب خودکار به اسم نماد تغییر نام می‌دهد
+      const nameTaken = tabs.some((t) => t.id !== tab.id && t.title === underlying);
+      tab.title = nameTaken ? tab.title : underlying;
+
+      renderSidebar();
+      renderMain();
+      setStatus(`${data.contracts.length} قرارداد نمایش داده شد.`, "success");
+      loadSavedTabs();
+    } catch (err) {
+      setStatus(err.message, "error");
+    } finally {
+      tab.refreshing = false;
+      fetchBtn.disabled = false;
+      renderRefreshInfo();
+    }
+  }
+
+  // ===================== بروزرسانی خودکار =====================
+  function expiryDatesOf(tab) {
+    return [...new Set(tab.data.contracts.map((c) => c.expiry_jalali).filter(Boolean))].sort();
+  }
+
+  async function refreshTab(tab) {
+    if (!tab.live || !tab.underlying || tab.refreshing) return;
+
+    tab.refreshing = true;
+    if (tab.id === activeTabId) renderRefreshInfo();
+
+    try {
+      const data = await requestContracts(tab.underlying, tab.capital);
+
+      const oldPrice = tab.data ? tab.data.underlying_price : null;
+      tab.priceDelta = oldPrice !== null ? data.underlying_price - oldPrice : 0;
+      tab.data = data;
+      tab.lastUpdated = new Date();
+      tab.lastRefreshFailed = false;
+
+      // اگر سررسیدی که فیلتر کرده بودی دیگر وجود ندارد، از فیلتر حذفش کن
+      const dates = expiryDatesOf(tab);
+      tab.filters.dates = new Set([...tab.filters.dates].filter((d) => dates.includes(d)));
+
+      if (tab.id === activeTabId) {
+        // پاپ‌آپ فیلتر فقط وقتی لیست سررسیدها واقعاً عوض شده بازسازی شود
+        if (renderedExpiryKey !== tab.id + "|" + dates.join(",")) renderExpiryCheckboxes(tab);
+        renderResults(tab);
+      }
+    } catch (err) {
+      // داده‌ی قبلی سر جایش می‌ماند؛ فقط وضعیت «ناموفق» نشان داده می‌شود
+      tab.lastRefreshFailed = true;
+    } finally {
+      tab.refreshing = false;
+      if (tab.id === activeTabId) renderRefreshInfo();
+    }
+  }
+
+  let autoRefreshRunning = false;
+
+  async function autoRefreshAll() {
+    if (autoRefreshRunning) return;   // اگر دور قبلی هنوز تمام نشده، دور جدید شروع نشود
+    autoRefreshRunning = true;
+    try {
+      // اول تب فعال، بعد بقیه؛ پشت‌سرهم (نه هم‌زمان) تا فشار زیادی به بازار نیاید
+      const ordered = [...tabs].sort((a, b) => (b.id === activeTabId) - (a.id === activeTabId));
+      for (const tab of ordered) {
+        await refreshTab(tab);
+      }
+    } finally {
+      autoRefreshRunning = false;
+    }
+  }
+
+  function renderExpiryCheckboxes(tab) {
+    const dates = expiryDatesOf(tab);
+    renderedExpiryKey = tab.id + "|" + dates.join(",");
+
+    if (!dates.length) {
+      expiryCheckboxesEl.innerHTML = "سررسیدی یافت نشد.";
+      return;
+    }
+
+    expiryCheckboxesEl.innerHTML = dates.map((d) => `
+      <label class="filter-check">
+        <input type="checkbox" class="expiry-cb" value="${d}" ${tab.filters.dates.has(d) ? "checked" : ""}>
+        ${d}
+      </label>
+    `).join("");
+
+    expiryCheckboxesEl.querySelectorAll(".expiry-cb").forEach((cb) => {
+      cb.addEventListener("change", () => {
+        if (cb.checked) tab.filters.dates.add(cb.value);
+        else tab.filters.dates.delete(cb.value);
+        renderResults(tab);
+      });
+    });
+  }
+
+  function getFilteredContracts(tab) {
+    const { dates, above20, below20, below10 } = tab.filters;
+    const predicates = [];
+    if (above20) predicates.push((p) => p > 20);
+    if (below20) predicates.push((p) => p < 20);
+    if (below10) predicates.push((p) => p < 10);
+
+    return tab.data.contracts.filter((c) => {
+      if (dates.size && !dates.has(c.expiry_jalali)) return false;
+      if (predicates.length) {
+        if (c.is_loss || c.profit_percent === null) return false;
+        if (!predicates.some((pred) => pred(c.profit_percent))) return false;
+      }
+      return true;
+    });
+  }
+
+  function statusBadge(status) {
+    if (status === "در سود") return `<span class="badge badge-good"><span class="dot dot-good"></span>${status}</span>`;
+    if (status === "در ضرر") return `<span class="badge badge-bad"><span class="dot dot-bad"></span>${status}</span>`;
+    return `<span class="badge badge-neutral"><span class="dot dot-neutral"></span>${status}</span>`;
+  }
+
+  function typeTag(optionType) {
+    if (optionType === "call") return `<span class="type-tag type-call">خرید</span>`;
+    if (optionType === "put") return `<span class="type-tag type-put">فروش</span>`;
+    return "-";
+  }
+
+  function profitCell(c) {
+    if (c.is_loss || c.profit_percent === null) return `<span class="profit-bad">خطا</span>`;
+    return `<span class="profit-good">${formatNumber(c.profit_percent)}٪</span>`;
+  }
+
+  function priceDeltaHtml(tab) {
+    if (!tab.priceDelta) return "";
+    const up = tab.priceDelta > 0;
+    const sign = up ? "+" : "−";
+    return `<span class="price-delta ${up ? "up" : "down"}">${sign}${formatNumber(Math.abs(tab.priceDelta))}</span>`;
+  }
+
+  function renderStats(tab, filtered) {
+    const profits = filtered.filter((c) => !c.is_loss && c.profit_percent !== null).map((c) => c.profit_percent);
+    const best = profits.length ? Math.max(...profits) : null;
+    const avg = profits.length ? profits.reduce((a, b) => a + b, 0) / profits.length : null;
+
+    statRow.style.display = "grid";
+    statRow.innerHTML = `
+      <div class="stat-card"><div class="stat-label">نماد</div><div class="stat-value">${tab.data.underlying}</div></div>
+      <div class="stat-card"><div class="stat-label">قیمت سهم</div><div class="stat-value">${formatNumber(tab.data.underlying_price)}${priceDeltaHtml(tab)}</div></div>
+      <div class="stat-card"><div class="stat-label">تعداد قرارداد نمایش‌داده‌شده</div><div class="stat-value">${filtered.length}</div></div>
+      <div class="stat-card"><div class="stat-label">بهترین سود</div><div class="stat-value">${best !== null ? formatNumber(best) + "٪" : "-"}</div></div>
+    `;
+  }
+
+  function renderResults(tab) {
+    const filtered = getFilteredContracts(tab);
+    tableTitle.textContent = `قراردادهای ${tab.data.underlying}`;
+    renderStats(tab, filtered);
+
+    if (!filtered.length) {
+      resultArea.innerHTML = `<div class="empty-state">با این فیلتر، قراردادی پیدا نشد.</div>`;
+      return;
+    }
+
+    const rows = filtered.map((c) => `
+      <tr>
+        <td data-label="نماد">${c.symbol}</td>
+        <td data-label="نوع">${typeTag(c.option_type)}</td>
+        <td data-label="سررسید">${c.expiry_jalali || "-"}</td>
+        <td data-label="وضعیت">${statusBadge(c.status)}</td>
+        <td data-label="قیمت اعمال">${formatNumber(c.strike)}</td>
+        <td data-label="پریمیوم">${formatNumber(c.premium)}</td>
+        <td data-label="سود">${profitCell(c)}</td>
+        <td data-label="آورده جدید">${c.new_capital !== null ? formatNumber(c.new_capital) : "-"}</td>
+      </tr>
+    `).join("");
+
+    resultArea.innerHTML = `
+      <div class="table-scroll">
+        <table>
+          <thead><tr>
+            <th>نماد</th><th>نوع</th><th>سررسید</th><th>وضعیت</th>
+            <th>قیمت اعمال</th><th>پریمیوم</th><th>سود</th><th>آورده جدید</th>
+          </tr></thead>
+          <tbody>${rows}</tbody>
+        </table>
+      </div>
+    `;
+  }
+
+  async function loadSavedTabs() {
+    try {
+      const res = await fetch(`${API_BASE_URL}/api/tabs`);
+      if (!res.ok) throw new Error();
+      const data = await res.json();
+
+      if (!data.tabs.length) {
+        savedTabsListEl.innerHTML = '<div style="color:var(--text-faint); font-size:12.5px; padding:4px 8px;">هنوز چیزی ذخیره نشده.</div>';
+        return;
+      }
+
+      savedTabsListEl.innerHTML = data.tabs.map((t) => `
+        <div class="tab-item" data-saved="${t.tab_name}">
+          <span class="tab-item-label">
+            <svg class="icon" viewBox="0 0 24 24"><path d="M5 13l4 4L19 7"/></svg>
+            ${t.tab_name}
+          </span>
+        </div>
+      `).join("");
+
+      savedTabsListEl.querySelectorAll("[data-saved]").forEach((el) => {
+        el.addEventListener("click", () => openSavedTab(el.dataset.saved));
+      });
+    } catch (err) {
+      savedTabsListEl.innerHTML = '<div style="color:var(--text-faint); font-size:12.5px; padding:4px 8px;">خطا در دریافت گزارش‌ها.</div>';
+    }
+  }
+
+  async function openSavedTab(tabName) {
+    // اگر همین گزارش قبلاً در یک تب باز است، فقط به آن سوییچ کن
+    const existing = tabs.find((t) => t.title === tabName && t.data);
+    if (existing) { switchTab(existing.id); return; }
+
+    const tab = createTab();
+    tab.title = tabName;
+    switchTab(tab.id);
+
+    setStatus(`در حال بارگذاری گزارش ذخیره‌شده‌ی «${tabName}»...`);
+    try {
+      const res = await fetch(`${API_BASE_URL}/api/tabs/${encodeURIComponent(tabName)}`);
+      if (!res.ok) {
+        const errBody = await res.json().catch(() => ({}));
+        throw new Error(errBody.detail || "خطا در دریافت گزارش ذخیره‌شده");
+      }
+      const data = await res.json();
+      tab.data = data;
+      tab.underlying = tabName;
+      tab.capital = data.capital;
+      renderSidebar();
+      renderMain();
+      setStatus(`گزارش ذخیره‌شده‌ی «${tabName}» نمایش داده شد (بدون درخواست تازه از بازار).`, "success");
+    } catch (err) {
+      setStatus(err.message, "error");
+    }
+  }
+
+  // ===================== اتصال رویدادها =====================
+  document.getElementById("newTabBtn").addEventListener("click", () => {
+    const tab = createTab();
+    switchTab(tab.id);
+  });
+
+  fetchBtn.addEventListener("click", fetchContracts);
+
+  filterBtn.addEventListener("click", (e) => {
+    e.stopPropagation();
+    filterPopup.classList.toggle("open");
+  });
+  document.addEventListener("click", (e) => {
+    if (!filterPopup.contains(e.target) && e.target !== filterBtn) {
+      filterPopup.classList.remove("open");
+    }
+  });
+
+  ["profitAbove20", "profitBelow20", "profitBelow10"].forEach((id) => {
+    document.getElementById(id).addEventListener("change", () => {
+      const tab = getActiveTab();
+      tab.filters.above20 = document.getElementById("profitAbove20").checked;
+      tab.filters.below20 = document.getElementById("profitBelow20").checked;
+      tab.filters.below10 = document.getElementById("profitBelow10").checked;
+      if (tab.data) renderResults(tab);
+    });
+  });
+
+  // ===================== شروع =====================
+  const firstTab = createTab();
+  activeTabId = firstTab.id;
+  renderSidebar();
+  renderMain();
+  loadUnderlyings();
+  loadSavedTabs();
+
+  // تایمرهای بروزرسانی خودکار
+  setInterval(autoRefreshAll, AUTO_REFRESH_INTERVAL_MS);
+  setInterval(() => loadUnderlyings({ silent: true }), UNDERLYINGS_REFRESH_MS);
+
+  // اگر تب مرورگر مدتی پنهان بوده (مثلاً گوشی قفل بوده) و داده کهنه شده،
+  // به‌محض برگشتن بلافاصله بروزرسانی کن؛ منتظر تایمر بعدی نمان
+  document.addEventListener("visibilitychange", () => {
+    if (document.hidden) return;
+    const stale = tabs.some(
+      (t) => t.live && t.lastUpdated && Date.now() - t.lastUpdated.getTime() > AUTO_REFRESH_INTERVAL_MS
+    );
+    if (stale) autoRefreshAll();
+  });
+</script>
+
+</body>
+</html>
